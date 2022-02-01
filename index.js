@@ -1,43 +1,34 @@
-const yargs = require('yargs')
-const pkg = require('./package.json')
-const {addNote, removeNote, printNotes} = require('./notes.controller')
+const http = require('http')
+const chalk = require('chalk')
+const path = require('path')
+const fs = require('fs/promises')
+const {addNote} = require('./notes.controller')
 
-yargs.version(pkg.version)
-yargs.command({
-  command: 'add',
-  describe: 'Add new note to list',
-  builder: {
-    title: {
-      type: 'string',
-      describe: 'Note title',
-      demandOption: true
-    }
-  },
-  async handler({title}) {
-    await addNote(title)
+const port = 3000
+const hostname = 'localhost'
+const basePath = path.join(__dirname, 'pages')
+
+const server = http.createServer(async (req, res) => {
+  if (req.method === 'GET') {
+    const content = await fs.readFile(path.join(basePath, 'index.html'), {encoding: 'utf8'})
+    res.end(content)
+
+  } else if (req.method === 'POST') {
+    const body = []
+
+    req.on('data',data=>{
+      body.push(Buffer.from(data))
+    })
+
+    req.on('end', () => {
+      const title = body.toString().split('=')[1].replaceAll('+', ' ')
+      addNote(title)
+    })
+
+    res.end('OK')
   }
 })
 
-yargs.command({
-  command: 'list',
-  describe: 'Print all notes',
-  async handler() {
-    await printNotes()
-  }
+server.listen(port, hostname, () => {
+  console.log(chalk.cyan(`Server started on: http://${hostname}:${port}`))
 })
-
-yargs.command({
-  command: 'remove',
-  describe: 'Remove note by id',
-  builder: {
-    id: {
-      type: 'string',
-      describe: 'Note id',
-      demandOption: true
-    }
-  }, async handler({id}) {
-    await removeNote(id)
-  }
-})
-
-yargs.parse()
