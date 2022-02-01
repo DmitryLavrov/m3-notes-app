@@ -1,34 +1,51 @@
 const http = require('http')
+const express = require('express')
 const chalk = require('chalk')
 const path = require('path')
 const fs = require('fs/promises')
-const {addNote} = require('./notes.controller')
+const {addNote, getNotes, removeNote} = require('./notes.controller')
+const {urlencoded} = require('express')
 
 const port = 3000
 const hostname = 'localhost'
 const basePath = path.join(__dirname, 'pages')
 
-const server = http.createServer(async (req, res) => {
-  if (req.method === 'GET') {
-    const content = await fs.readFile(path.join(basePath, 'index.html'), {encoding: 'utf8'})
-    res.end(content)
+const app = express()
 
-  } else if (req.method === 'POST') {
-    const body = []
+app.set('view engine', 'ejs')
+app.set('views', 'pages')
 
-    req.on('data',data=>{
-      body.push(Buffer.from(data))
-    })
+app.use(express.static(path.resolve(__dirname, 'public')))
+app.use(express.urlencoded({extended: true}))
 
-    req.on('end', () => {
-      const title = body.toString().split('=')[1].replaceAll('+', ' ')
-      addNote(title)
-    })
-
-    res.end('OK')
-  }
+app.get('/', async (req, res) => {
+  res.render('index', {
+    title: 'Notes app',
+    notes: await getNotes(),
+    created: false
+  })
 })
 
-server.listen(port, hostname, () => {
+app.post('/', async (req, res) => {
+  await addNote(req.body.title)
+
+  res.render('index', {
+    title: 'Notes app (note added)',
+    notes: await getNotes(),
+    created: true
+  })
+})
+
+app.delete('/:id', async (req, res) => {
+  await removeNote(req.params.id)
+
+  res.render('index', {
+    title: 'Notes app (note deleted)',
+    notes: await getNotes(),
+    created: false
+  })
+})
+
+app.listen(port, hostname, () => {
   console.log(chalk.cyan(`Server started on: http://${hostname}:${port}`))
 })
