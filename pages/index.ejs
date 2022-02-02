@@ -10,7 +10,7 @@
     <title><%= title %></title>
 </head>
 
-<body>
+<body class="bg-light">
 <% if (created) { %>
     <div class="alert alert-success">
         Note has been created!
@@ -29,22 +29,31 @@
     </form>
 
     <% if (notes.length > 0) { %>
-    <div class="card">
-        <ul class="list-group">
-            <% for (let i = 0; i < notes.length; i++) { %>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <%= notes[i].title %>
-                    <button class="btn btn-danger"
-                            data-type="remove" data-id="<%= notes[i].id %>">
-                        &times;
-                    </button>
-                </li>
-            <% } %>
-        </ul>
-    </div>
+        <div class="card">
+            <ul class="list-group">
+                <% for (let i = 0; i < notes.length; i++) { %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+                        <span class="me-auto">
+                            <%= notes[i].title %>
+                        </span>
+                        <button class="btn btn-primary"
+                                data-type="edit"
+                                data-id="<%= notes[i].id %>"
+                                data-title="<%= notes[i].title %>">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger"
+                                data-type="remove"
+                                data-id="<%= notes[i].id %>">
+                            &times;
+                        </button>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
     <% } else { %>
-    <p>No notes</p>
-    <% }%>
+        <p>No notes</p>
+    <% } %>
 </div>
 
 <script src="app.js"></script>

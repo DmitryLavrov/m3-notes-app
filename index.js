@@ -1,14 +1,11 @@
-const http = require('http')
 const express = require('express')
 const chalk = require('chalk')
 const path = require('path')
-const fs = require('fs/promises')
-const {addNote, getNotes, removeNote} = require('./notes.controller')
-const {urlencoded} = require('express')
+
+const {addNote, getNotes, removeNote, updateNote} = require('./notes.controller')
 
 const port = 3000
 const hostname = 'localhost'
-const basePath = path.join(__dirname, 'pages')
 
 const app = express()
 
@@ -17,6 +14,7 @@ app.set('views', 'pages')
 
 app.use(express.static(path.resolve(__dirname, 'public')))
 app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
 app.get('/', async (req, res) => {
   res.render('index', {
@@ -41,6 +39,16 @@ app.delete('/:id', async (req, res) => {
 
   res.render('index', {
     title: 'Notes app (note deleted)',
+    notes: await getNotes(),
+    created: false
+  })
+})
+
+app.put('/:id', async (req, res) => {
+  await updateNote(req.params.id, req.body.title)
+
+  res.render('index', {
+    title: 'Notes app (note edited)',
     notes: await getNotes(),
     created: false
   })
