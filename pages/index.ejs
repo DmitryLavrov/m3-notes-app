@@ -11,7 +11,7 @@
 </head>
 
 <body class="bg-light">
-<% if (created) { %>
+<% if (created === true) { %>
     <div class="alert alert-success">
         Note has been created!
     </div>
@@ -22,10 +22,15 @@
 
     <form action="/" method="post">
         <div class="form-group mb-2">
-            <input type="text" class="form-control" name="title">
+            <input type="text"
+                   class="form-control"
+                   name="title">
         </div>
 
-        <button class="btn btn-primary mb-2" type="submit">Create!</button>
+        <button class="btn btn-primary mb-2"
+                type="submit">
+            Create!
+        </button>
     </form>
 
     <% if (notes.length > 0) { %>
@@ -34,8 +39,12 @@
                 <% for (let i = 0; i < notes.length; i++) { %>
                     <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
                         <span class="me-auto">
-                            <%= notes[i].title %>
+                                <%= notes[i].title %>
                         </span>
+                        <input type="text"
+                               class="form-control w-50 me-auto d-none"
+                               name="noteTitle"
+                               value="<%= notes[i].title %>">
                         <button class="btn btn-primary"
                                 data-type="edit"
                                 data-id="<%= notes[i].id %>"
@@ -46,6 +55,16 @@
                                 data-type="remove"
                                 data-id="<%= notes[i].id %>">
                             &times;
+                        </button>
+                        <button class="btn btn-success d-none"
+                                data-type="save"
+                                data-id="<%= notes[i].id %>">
+                            Save
+                        </button>
+                        <button class="btn btn-warning d-none"
+                                data-type="cancel"
+                                data-id="<%= notes[i].id %>">
+                            Cancel
                         </button>
                     </li>
                 <% } %>
